@@ -32,19 +32,22 @@ public class DecisionTree implements Serializable {
 			threshold = Double.MAX_VALUE;
 		}
 
+		private boolean allSameLabel(ArrayList<Datum> data) {
+			int firstLabel = data.get(0).y;
+			for (Datum d : data) {
+				if (d.y != firstLabel) {
+					return false;
+				}
+			}
+			return true;
+		}
 		DTNode fillDTNode(ArrayList<Datum> datalist) {
 			if (datalist.size() >= minSizeDatalist) {
-				boolean check = true;
-				for (Datum d : datalist) {
-					if (d.y != datalist.get(0).y) {
-						 check = false;
-						break;
-					}
-				}
-				if (check) {
+				if (allSameLabel(datalist)) {
 					DTNode leaf = new DTNode();
 					leaf.label = datalist.get(0).y;
-					leaf.leaf = true;
+					leaf.left = null;
+					leaf.right = null;
 					return leaf;
 				} else {
 					double[] bestSplit = findBestSplit(datalist);
@@ -54,24 +57,24 @@ public class DecisionTree implements Serializable {
 					node.threshold = bestSplit[1];
 					ArrayList<Datum> left = new ArrayList<>();
 					ArrayList<Datum> right = new ArrayList<>();
-					for (int i = 0; i < datalist.size(); i++) {
-						if (datalist.get(i).x[node.attribute] < node.threshold) {
-							left.add(datalist.get(i));
-						} else {
-							right.add(datalist.get(i));
-						}
-					}
+                    for (Datum datum : datalist) {
+                        if (datum.x[node.attribute] < node.threshold) {
+                            left.add(datum);
+                        } else {
+                            right.add(datum);
+                        }
+                    }
 					node.left = fillDTNode(left);
 					node.right = fillDTNode(right);
 					return node;
 				}
-
 			}
 			else
 			{
 				DTNode leaf = new DTNode();
 				leaf.label = findMajority(datalist);
-				leaf.leaf = true;
+				leaf.left = null;
+				leaf.right = null;
 				return leaf;
 			}
 		}
@@ -102,6 +105,7 @@ public class DecisionTree implements Serializable {
 				for(int j = 0 ; j < datalist.size() ; j++){
 					ArrayList<Datum> left = new ArrayList<>();
 					ArrayList<Datum> right = new ArrayList<>();
+
                     for (int k = 0 ; k < datalist.size() ; k++) {
                         if (k <= j) {
                             left.add(datalist.get(k));
