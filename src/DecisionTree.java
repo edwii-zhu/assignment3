@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.text.*;
 import java.lang.Math;
@@ -31,46 +32,33 @@ public class DecisionTree implements Serializable {
 			threshold = Double.MAX_VALUE;
 		}
 
-		
-		// this method takes in a datalist (ArrayList of type datum). It returns the calling DTNode object 
-		// as the root of a decision tree trained using the datapoints present in the datalist variable and minSizeDatalist.
-		// Also, KEEP IN MIND that the left and right child of the node correspond to "less than" and "greater than or equal to" threshold
-		//Data: data set (training)
-		//Result: the root node of a decision tree
-		//MAKE DECISION TREE NODE(data)
-		//if the labelled data set has at least k data items (see below) then
-		//if all the data items have the same label then
-		//create a leaf node with that class label and return it;
-		//else
-		//create a “best” attribute test question; (see details later)
-		//create a new node and store the attribute test in that node, namely attribute and threshold;
-		//split the set of data items into two subsets, data1 and data2, according to the answers to the test
-		//question;
-		//newNode.child1 = MAKE DECISION TREE NODE(data1)
-		//newNode.child2 = MAKE DECISION TREE NODE(data2)
-		//return newNode
-		//end
-		//else
-		//create a leaf node with label equal to the majority of labels and return it;
-		//end
 		DTNode fillDTNode(ArrayList<Datum> datalist) {
-			if (datalist.size() > minSizeDatalist) {
-				if (datalist.get(0).y == datalist.get(datalist.size() - 1).y) {
+			if (datalist.size() >= minSizeDatalist) {
+				boolean check = true;
+				for (Datum d : datalist) {
+					if (d.y != datalist.get(0).y) {
+						 check = false;
+						break;
+					}
+				}
+				if (check) {
 					DTNode leaf = new DTNode();
 					leaf.label = datalist.get(0).y;
+					leaf.leaf = true;
 					return leaf;
 				} else {
 					double[] bestSplit = findBestSplit(datalist);
 					DTNode node = new DTNode();
+					node.leaf = false;
 					node.attribute = (int) bestSplit[0];
 					node.threshold = bestSplit[1];
 					ArrayList<Datum> left = new ArrayList<>();
 					ArrayList<Datum> right = new ArrayList<>();
-					for (Datum d : datalist) {
-						if (d.x[node.attribute] < node.threshold) {
-							left.add(d);
+					for (int i = 0; i < datalist.size(); i++) {
+						if (datalist.get(i).x[node.attribute] < node.threshold) {
+							left.add(datalist.get(i));
 						} else {
-							right.add(d);
+							right.add(datalist.get(i));
 						}
 					}
 					node.left = fillDTNode(left);
@@ -83,6 +71,7 @@ public class DecisionTree implements Serializable {
 			{
 				DTNode leaf = new DTNode();
 				leaf.label = findMajority(datalist);
+				leaf.leaf = true;
 				return leaf;
 			}
 		}
@@ -111,8 +100,8 @@ public class DecisionTree implements Serializable {
 			double bestThreshold = -1;
 			for (int i = 0 ; i < datalist.get(0).x.length ; i++){
 				for(int j = 0 ; j < datalist.size() ; j++){
-					ArrayList<Datum>  left = new ArrayList<>();
-					ArrayList<Datum>  right = new ArrayList<>();
+					ArrayList<Datum> left = new ArrayList<>();
+					ArrayList<Datum> right = new ArrayList<>();
                     for (int k = 0 ; k < datalist.size() ; k++) {
                         if (k <= j) {
                             left.add(datalist.get(k));
@@ -158,15 +147,18 @@ public class DecisionTree implements Serializable {
 		}
 		public boolean equals(Object dt2)
 		{
-			ArrayList<Integer> list1 = new ArrayList<Integer>();
-			ArrayList<Integer> list2 = new ArrayList<Integer>();
+			if (!(dt2 instanceof DTNode))
+				return false;
+			ArrayList<Integer> list1 = new ArrayList<>();
+			ArrayList<Integer> list2 = new ArrayList<>();
 			preorder(this, list1);
 			preorder((DTNode) dt2, list2);
 			if (!list1.equals(list2))
 				return false;
 			else if (this.attribute != ((DTNode)dt2).attribute || this.threshold != ((DTNode)dt2).threshold || this.label != ((DTNode)dt2).label)
 				return false;
-			else return this.leaf == ((DTNode) dt2).leaf;//dummy code.  Update while completing the assignment.
+			else
+				return this.leaf == ((DTNode) dt2).leaf;
         }
 	}
 
