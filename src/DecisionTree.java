@@ -99,8 +99,8 @@ public class DecisionTree implements Serializable {
 		private double[] findBestSplit(ArrayList<Datum> datalist) {
 			// attribute is index and threshold is value
 			double bestAvgEntropy = Double.MAX_VALUE;
-			double bestAttribute = -1;
-			double bestThreshold = -1;
+			double bestAttribute = -1; //index
+			double bestThreshold = -1; //value?
 			for (int i = 0 ; i < datalist.get(0).x.length ; i++){
 				for(int j = 0 ; j < datalist.size() ; j++){
 					ArrayList<Datum> left = new ArrayList<>();
@@ -113,7 +113,7 @@ public class DecisionTree implements Serializable {
                             right.add(datalist.get(k));
                         }
                     }
-					double avgEntropy = (left.size() * calcEntropy(left) + right.size() * calcEntropy(right)) / datalist.size();
+					double avgEntropy = (left.size() * calcEntropy(left) + right.size() * calcEntropy(right)) / (double) datalist.size();
 					double split = datalist.get(j).x[i];
 					if (bestAvgEntropy > avgEntropy){
 						bestAvgEntropy = avgEntropy;
@@ -129,10 +129,12 @@ public class DecisionTree implements Serializable {
 		// This method takes in a datapoint (excluding the label) in the form of an array of type double (Datum.x) and
 		// returns its corresponding label, as determined by the decision tree
 		int classifyAtNode(double[] xQuery) {
-			
-			//ADD CODE HERE
-
-			return -1; //dummy code.  Update while completing the assignment.
+			if (this.leaf)
+				return this.label;
+			else if (xQuery[this.attribute] < this.threshold)
+				return this.left.classifyAtNode(xQuery);
+			else
+				return this.right.classifyAtNode(xQuery);
 		}
 
 

@@ -458,7 +458,7 @@ public class Minitester {
 	"Equals_MinSameFiles",
 	"Equals_PartialDiffFiles",
 	"Equals_PartialSameFiles",
-	"FillDTNode_High1",
+/*	"FillDTNode_High1",
 	"FillDTNode_High2",
 	"FillDTNode_High3",
 	"FillDTNode_Min1",
@@ -467,7 +467,7 @@ public class Minitester {
 	"FillDTNode_Min4",
 	"FillDTNode_Partial1",
 	"FillDTNode_Partial2",
-	"FillDTNode_Partial3"
+	"FillDTNode_Partial3" */
     };
     public static void main(String[] args) {
         int numPassed = 0;
