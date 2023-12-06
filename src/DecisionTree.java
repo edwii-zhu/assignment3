@@ -1,5 +1,4 @@
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.text.*;
 import java.lang.Math;
@@ -42,13 +41,19 @@ public class DecisionTree implements Serializable {
 			return true;
 		}
 		DTNode fillDTNode(ArrayList<Datum> datalist) {
+			DTNode newnode = new DTNode();
+			if (datalist.size() == 1){
+				newnode.label = datalist.get(0).y;
+				newnode.left = null;
+				newnode.right = null;
+				return newnode;
+			}
 			if (datalist.size() >= minSizeDatalist) {
 				if (allSameLabel(datalist)) {
-					DTNode leaf = new DTNode();
-					leaf.label = datalist.get(0).y;
-					leaf.left = null;
-					leaf.right = null;
-					return leaf;
+					newnode.label = datalist.get(0).y;
+					newnode.left = null;
+					newnode.right = null;
+					//return leaf;
 				} else {
 					double[] bestSplit = findBestSplit(datalist);
 					DTNode node = new DTNode();
@@ -71,12 +76,12 @@ public class DecisionTree implements Serializable {
 			}
 			else
 			{
-				DTNode leaf = new DTNode();
-				leaf.label = findMajority(datalist);
-				leaf.left = null;
-				leaf.right = null;
-				return leaf;
+				newnode.label = findMajority(datalist);
+				newnode.left = null;
+				newnode.right = null;
+				return newnode;
 			}
+			return newnode;
 		}
 		// This is a helper method. Given a datalist, this method returns the label that has the most
 		// occurrences. In case of a tie it returns the label with the smallest value (numerically) involved in the tie.
@@ -105,16 +110,17 @@ public class DecisionTree implements Serializable {
 				for(int j = 0 ; j < datalist.size() ; j++){
 					ArrayList<Datum> left = new ArrayList<>();
 					ArrayList<Datum> right = new ArrayList<>();
+					double split = datalist.get(j).x[i];
 
-                    for (int k = 0 ; k < datalist.size() ; k++) {
-                        if (k <= j) {
-                            left.add(datalist.get(k));
+                    for (Datum k : datalist) {
+                        if (k.x[i] < split) {
+                            left.add(k);
                         } else {
-                            right.add(datalist.get(k));
+                            right.add(k);
                         }
                     }
 					double avgEntropy = (left.size() * calcEntropy(left) + right.size() * calcEntropy(right)) / (double) datalist.size();
-					double split = datalist.get(j).x[i];
+
 					if (bestAvgEntropy > avgEntropy){
 						bestAvgEntropy = avgEntropy;
 						bestAttribute = i;
